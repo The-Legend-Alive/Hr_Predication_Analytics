@@ -81,97 +81,142 @@ std = np.std(df["Seniority"])
 
 #-------------Hypothesis Testing the correlations----------------
 #Creating a functon to compute the pearson correlation coeff 
-def pearson_r(x,y):
-    corr_mat = np.corrcoef(x,y)
-    return corr_mat[0,1]
+# def pearson_r(x,y):
+#     corr_mat = np.corrcoef(x,y)
+#     return corr_mat[0,1]
 
-#Computing the pearson correlation coeff between seniority and age  
-r = pearson_r(df["Seniority"],df["Age"])
-print("Corr Coeff of seniority and age scores : ", r)
+# #Computing the pearson correlation coeff between seniority and age  
+# r = pearson_r(df["Seniority"],df["Age"])
+# print("Corr Coeff of seniority and age scores : ", r)
 
-#Computing the pearson correlation coeff between Seniority and Personal objectives  
-r = pearson_r(df["Seniority"],df["# Personal objectives"])
-print("Corr Coeff of seniority and personal objectives scores : ", r)
+# #Computing the pearson correlation coeff between Seniority and Personal objectives  
+# r = pearson_r(df["Seniority"],df["# Personal objectives"])
+# print("Corr Coeff of seniority and personal objectives scores : ", r)
 
-#Hypothesis test to see if There is a weak postive correlation between seniority and age  
+# #Hypothesis test to see if There is a weak postive correlation between seniority and age  
 
-r_obs = pearson_r(df["Age"],df["Seniority"])
+# r_obs = pearson_r(df["Age"],df["Seniority"])
 
-perm_replicates = np.empty(120000)
-for i in range(120000):
-    age_permuted = np.random.permutation(df["Age"])
-    perm_replicates[i] = pearson_r(age_permuted,df["Seniority"])
+# perm_replicates = np.empty(120000)
+# for i in range(120000):
+#     age_permuted = np.random.permutation(df["Age"])
+#     perm_replicates[i] = pearson_r(age_permuted,df["Seniority"])
     
-#Computing the p value
-p = np.sum(perm_replicates <= r_obs) / len(perm_replicates)
-print('p-val =', p)
+# #Computing the p value
+# p = np.sum(perm_replicates <= r_obs) / len(perm_replicates)
+# print('p-val =', p)
 
 #-------------Machine Learning----------------
  
-# print(df['Employee Name'])
 
-# from sklearn.model_selection import train_test_split
-# from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import roc_curve, roc_auc_score
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
 
-# for col in df.columns:
-#     if 'Start Date' in col:
-#         del df[col]
-#     if 'End Date' in col:
-#         del df[col]
-#     if '#Events' in col:
-#         del df[col]
-# df
-# print (df)
-# # The categorical columns are one-hot encoded
-# X = pd.get_dummies(df.drop('Left', axis=1)).values
-# y = df['Left'].cat.codes.values
+for col in df.columns:
+    if 'Start Date' in col:
+        del df[col]
+    if 'End Date' in col:
+        del df[col]
+    if '#Events' in col:
+        del df[col]
+df
 
-# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+# The categorical columns are one-hot encoded
+X = pd.get_dummies(df.drop('Left', axis=1)).values
+y = df['Left'].cat.codes.values
 
-# # Feature Scaling
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 
-# sc_X = StandardScaler()
-# X_train = sc_X.fit_transform(X_train)
-# X_test = sc_X.transform(X_test)
+# Feature Scaling
+sc_X = StandardScaler()
+X_train = sc_X.fit_transform(X_train)
+X_test = sc_X.transform(X_test)
 # sc_y = StandardScaler()
-# y_train = sc_y.fit_transform(y_train.reshape(-1,1))
+# y_train= sc_y.fit_transform(y_train.reshape(-1,1))
+# y_train= np.ravel(y_train)
 
-# from sklearn.metrics import roc_curve, roc_auc_score
+print(y_train)
 
-# from sklearn.neighbors import KNeighborsClassifier
-# from sklearn.linear_model import LogisticRegression
-# from sklearn.tree import DecisionTreeClassifier
 
-# #-------------Parameter Fine Tuning----------------
 
-# #-------------KNeighborsClassifier----------------
-# from sklearn.model_selection import GridSearchCV
+#-------------Parameter Fine Tuning----------------
 
-# knn = KNeighborsClassifier(n_neighbors=6)
-# param_grid = {'n_neighbors': np.arange(3, 15)}
-# knn_cv = GridSearchCV(knn, param_grid, cv=5)
-# knn_cv.fit(X, y)
-# knn_cv.best_params_
+#-------------KNeighborsClassifier----------------
+from sklearn.model_selection import GridSearchCV
 
-# #-------------Building the machine learning models----------------
-# knn = KNeighborsClassifier(n_neighbors=8)
-# logreg = LogisticRegression()
-# tree = DecisionTreeClassifier()
+knn = KNeighborsClassifier(n_neighbors=6)
+param_grid = {'n_neighbors': np.arange(3, 15)}
+knn_cv = GridSearchCV(knn, param_grid, cv=5)
+knn_cv.fit(X, y)
+knn_cv.best_params_
 
-# classification_models = {
-#     'KNeighboursClassfier': knn,
-#     'DecisionTreeClassifier': tree
-# }
+#-------------Building the machine learning models----------------
+knn = KNeighborsClassifier(n_neighbors=8)
+logreg = LogisticRegression()
+tree = DecisionTreeClassifier()
 
-# regression_models = {
-#     'LogisticRegression': logreg
-# }
+classification_models = {
+    'KNeighboursClassfier': knn,
+    'DecisionTreeClassifier': tree
+}
 
-# #------------- Model Scores----------------
-# for name, model in classification_models.items():
-#     model.fit(X_train, y_train)
-#     print('{}\t{}'.format(name, model.score(X_test, y_test)))
+regression_models = {
+    'LogisticRegression': logreg
+}
+
+#------------- Model Scores----------------
+for name, model in classification_models.items():
+    model.fit(X_train, y_train)
+    print('{}\t{}'.format(name, model.score(X_test, y_test)))
     
-# for name, model in regression_models.items():
-#     model.fit(X_train, y_train)
-#     print('{}\t{}'.format(name, model.score(X_test, y_test)))
+for name, model in regression_models.items():
+    model.fit(X_train, y_train)
+    print('{}\t{}'.format(name, model.score(X_test, y_test)))
+
+#------------- ROC Curve and AUC---------------
+# subplot_count = 1
+
+# for name, model in classification_models.items():
+#     y_pred = model.predict(X_test)
+#     fpr, tpr, tresholds = roc_curve(y_test, y_pred)
+    
+#     plt.subplot(1, len(classification_models), subplot_count)
+    
+#     plt.plot([0,1], [0,1], 'k--')
+#     plt.plot(fpr, tpr, label=name)
+
+#     plt.xlabel('False Positive Rate')
+#     plt.ylabel('True Positive Rate')
+#     plt.title('{} ROC curve'.format(name))
+    
+#     subplot_count += 1
+    
+#     print('{}\t{}'.format(name, roc_auc_score(y_test, y_pred)))
+    
+#     plt.show()
+
+#     subplot_count = 1
+
+subplot_count = 1
+
+for name, model in regression_models.items():
+    y_pred_prob = model.predict_proba(X_test)[:,1]
+    fpr, tpr, tresholds = roc_curve(y_test, y_pred_prob)
+    
+    plt.subplot(1, len(regression_models), subplot_count)
+    
+    plt.plot([0,1], [0,1], 'k--')
+    plt.plot(fpr, tpr, label=name)
+
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('{} ROC curve'.format(name))
+    
+    subplot_count += 1
+    
+    print('{} AUC:\t{}'.format(name, roc_auc_score(y_test, y_pred_prob)))
+    plt.show()
