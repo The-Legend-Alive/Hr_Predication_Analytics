@@ -29,6 +29,7 @@ df['Reasons for leaving'] = df['Reasons for leaving'].astype('category').cat.cod
 df['Q6'] = df['Q6'].astype('category').cat.codes
 df['q7'] = df['q7'].astype('category').cat.codes
 df['#Mission/Projects'] = df['#Mission/Projects'].astype('category').cat.codes
+df['Difference in Salary'] = df['Difference in Salary'].astype('category').cat.codes
 #df['#Events'] = df['#Events'].astype('category').cat.codes
 df['Employee Name'].fillna('',inplace=True)
 df['Difference in Salary'].fillna('',inplace=True)
@@ -123,6 +124,9 @@ for col in df.columns:
         del df[col]
     if '#Events' in col:
         del df[col]
+    if 'Employee Name' in col:
+        del df[col]
+
 df
 
 # The categorical columns are one-hot encoded
@@ -168,14 +172,14 @@ regression_models = {
     'LogisticRegression': logreg
 }
 
-#------------- Model Scores----------------
-for name, model in classification_models.items():
-    model.fit(X_train, y_train)
-    print('{}\t{}'.format(name, model.score(X_test, y_test)))
+# #------------- Model Scores----------------
+# for name, model in classification_models.items():
+#     model.fit(X_train, y_train)
+#     print('{}\t{}'.format(name, model.score(X_test, y_test)))
     
-for name, model in regression_models.items():
-    model.fit(X_train, y_train)
-    print('{}\t{}'.format(name, model.score(X_test, y_test)))
+# for name, model in regression_models.items():
+#     model.fit(X_train, y_train)
+#     print('{}\t{}'.format(name, model.score(X_test, y_test)))
 
 #------------- ROC Curve and AUC---------------
 # subplot_count = 1
@@ -201,22 +205,65 @@ for name, model in regression_models.items():
 
 #     subplot_count = 1
 
-subplot_count = 1
+# subplot_count = 1
+
+# for name, model in regression_models.items():
+#     y_pred_prob = model.predict_proba(X_test)[:,1]
+#     fpr, tpr, tresholds = roc_curve(y_test, y_pred_prob)
+    
+#     plt.subplot(1, len(regression_models), subplot_count)
+    
+#     plt.plot([0,1], [0,1], 'k--')
+#     plt.plot(fpr, tpr, label=name)
+
+#     plt.xlabel('False Positive Rate')
+#     plt.ylabel('True Positive Rate')
+#     plt.title('{} ROC curve'.format(name))
+    
+#     subplot_count += 1
+    
+#     print('{} AUC:\t{}'.format(name, roc_auc_score(y_test, y_pred_prob)))
+#     plt.show()
+
+#Scaling: Standardizes features by removing the mean and scaling to unit variance
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import accuracy_score
+
+for name, model in classification_models.items():
+    
+    steps = [
+        ('scaler', StandardScaler()),
+        (name, model)
+    ]
+    
+    pipeline = Pipeline(steps)
+    pipeline.fit(X_train, y_train)
+    y_pred = pipeline.predict(X_test)
+    
+    print('{}\t{}'.format(name, accuracy_score(y_test, y_pred)))
+
 
 for name, model in regression_models.items():
-    y_pred_prob = model.predict_proba(X_test)[:,1]
-    fpr, tpr, tresholds = roc_curve(y_test, y_pred_prob)
     
-    plt.subplot(1, len(regression_models), subplot_count)
+    steps = [
+        ('scaler', StandardScaler()),
+        (name, model)
+    ]
     
-    plt.plot([0,1], [0,1], 'k--')
-    plt.plot(fpr, tpr, label=name)
+    pipeline = Pipeline(steps)
+    pipeline.fit(X_train, y_train)
+    y_pred = pipeline.predict(X_test)
+    
+    print('{}\t{}'.format(name, accuracy_score(y_test, y_pred)))
 
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('{} ROC curve'.format(name))
-    
-    subplot_count += 1
-    
-    print('{} AUC:\t{}'.format(name, roc_auc_score(y_test, y_pred_prob)))
-    plt.show()
+#Feature Selection
+from sklearn.ensemble import ExtraTreesClassifier
+model = ExtraTreesClassifier()
+model.fit(X, y)
+
+pd.set_option("display.max_rows", None, "display.max_columns", None)
+print (pd.DataFrame(model.feature_importances_,
+             index=pd.get_dummies(df.drop('Left', axis=1)).columns,
+             columns=['Importance']))
+
