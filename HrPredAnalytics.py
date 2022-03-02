@@ -172,38 +172,37 @@ regression_models = {
     'LogisticRegression': logreg
 }
 
-# #------------- Model Scores----------------
-# for name, model in classification_models.items():
-#     model.fit(X_train, y_train)
-#     print('{}\t{}'.format(name, model.score(X_test, y_test)))
+#------------- Model Scores---------------
+for name, model in classification_models.items():
+    model.fit(X_train, y_train)
+    print('{}\t{}'.format(name, model.score(X_test, y_test)))
     
-# for name, model in regression_models.items():
-#     model.fit(X_train, y_train)
-#     print('{}\t{}'.format(name, model.score(X_test, y_test)))
+for name, model in regression_models.items():
+    model.fit(X_train, y_train)
+    print('{}\t{}'.format(name, model.score(X_test, y_test)))
 
 #------------- ROC Curve and AUC---------------
-# subplot_count = 1
+subplot_count = 1
 
-# for name, model in classification_models.items():
-#     y_pred = model.predict(X_test)
-#     fpr, tpr, tresholds = roc_curve(y_test, y_pred)
+for name, model in classification_models.items():
+    y_pred = model.predict(X_test)
+    fpr, tpr, tresholds = roc_curve(y_test, y_pred)
     
-#     plt.subplot(1, len(classification_models), subplot_count)
+    plt.subplot(1, len(classification_models), subplot_count)
     
-#     plt.plot([0,1], [0,1], 'k--')
-#     plt.plot(fpr, tpr, label=name)
+    plt.plot([0,1], [0,1], 'k--')
+    plt.plot(fpr, tpr, label=name)
 
-#     plt.xlabel('False Positive Rate')
-#     plt.ylabel('True Positive Rate')
-#     plt.title('{} ROC curve'.format(name))
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('{} ROC curve'.format(name))
     
-#     subplot_count += 1
+    subplot_count += 1
     
-#     print('{}\t{}'.format(name, roc_auc_score(y_test, y_pred)))
+    print('{}\t{}'.format(name, roc_auc_score(y_test, y_pred)))
     
-#     plt.show()
+    plt.show()
 
-#     subplot_count = 1
 
 # subplot_count = 1
 
@@ -225,45 +224,45 @@ regression_models = {
 #     print('{} AUC:\t{}'.format(name, roc_auc_score(y_test, y_pred_prob)))
 #     plt.show()
 
-#Scaling: Standardizes features by removing the mean and scaling to unit variance
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
-from sklearn.metrics import accuracy_score
+# #Scaling: Standardizes features by removing the mean and scaling to unit variance
+# from sklearn.preprocessing import StandardScaler
+# from sklearn.pipeline import Pipeline
+# from sklearn.metrics import accuracy_score
 
-for name, model in classification_models.items():
+# for name, model in classification_models.items():
     
-    steps = [
-        ('scaler', StandardScaler()),
-        (name, model)
-    ]
+#     steps = [
+#         ('scaler', StandardScaler()),
+#         (name, model)
+#     ]
     
-    pipeline = Pipeline(steps)
-    pipeline.fit(X_train, y_train)
-    y_pred = pipeline.predict(X_test)
+#     pipeline = Pipeline(steps)
+#     pipeline.fit(X_train, y_train)
+#     y_pred = pipeline.predict(X_test)
     
-    print('{}\t{}'.format(name, accuracy_score(y_test, y_pred)))
+#     print('{}\t{}'.format(name, accuracy_score(y_test, y_pred)))
 
 
-for name, model in regression_models.items():
+# for name, model in regression_models.items():
     
-    steps = [
-        ('scaler', StandardScaler()),
-        (name, model)
-    ]
+#     steps = [
+#         ('scaler', StandardScaler()),
+#         (name, model)
+#     ]
     
-    pipeline = Pipeline(steps)
-    pipeline.fit(X_train, y_train)
-    y_pred = pipeline.predict(X_test)
+#     pipeline = Pipeline(steps)
+#     pipeline.fit(X_train, y_train)
+#     y_pred = pipeline.predict(X_test)
     
-    print('{}\t{}'.format(name, accuracy_score(y_test, y_pred)))
+#     print('{}\t{}'.format(name, accuracy_score(y_test, y_pred)))
 
-#Feature Selection
-from sklearn.ensemble import ExtraTreesClassifier
-model = ExtraTreesClassifier()
-model.fit(X, y)
+# #Feature Selection
+# from sklearn.ensemble import ExtraTreesClassifier
+# model = ExtraTreesClassifier()
+# model.fit(X, y)
 
-pd.set_option("display.max_rows", None, "display.max_columns", None)
-print (pd.DataFrame(model.feature_importances_,
-             index=pd.get_dummies(df.drop('Left', axis=1)).columns,
-             columns=['Importance']))
+# pd.set_option("display.max_rows", None, "display.max_columns", None)
+# print (pd.DataFrame(model.feature_importances_,
+#              index=pd.get_dummies(df.drop('Left', axis=1)).columns,
+#              columns=['Importance']))
 
