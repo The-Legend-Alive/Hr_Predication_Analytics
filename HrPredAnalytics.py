@@ -116,6 +116,8 @@ from sklearn.metrics import roc_curve, roc_auc_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC
+from sklearn.naive_bayes import GaussianNB
 
 for col in df.columns:
     if 'Start Date' in col:
@@ -143,9 +145,6 @@ X_test = sc_X.transform(X_test)
 # y_train= sc_y.fit_transform(y_train.reshape(-1,1))
 # y_train= np.ravel(y_train)
 
-print(y_train)
-
-
 
 #-------------Parameter Fine Tuning----------------
 
@@ -162,10 +161,16 @@ knn_cv.best_params_
 knn = KNeighborsClassifier(n_neighbors=8)
 logreg = LogisticRegression()
 tree = DecisionTreeClassifier()
+svm_linear= SVC(kernel = 'linear', random_state = 42)
+svm_nonlinear= SVC(kernel = 'rbf', random_state = 42)
+GaussianNB = GaussianNB()
 
 classification_models = {
     'KNeighboursClassfier': knn,
-    'DecisionTreeClassifier': tree
+    'DecisionTreeClassifier': tree,
+    'svm_linear': svm_linear,
+    'svm_nonlinear': svm_nonlinear,
+    'GaussianNB': GaussianNB
 }
 
 regression_models = {
